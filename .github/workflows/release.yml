@@ -15,6 +15,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   prepare:
     name: Prepare release
@@ -75,6 +79,7 @@ jobs:
     name: Build (${{ matrix.label }})
     needs: prepare
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -226,6 +231,7 @@ jobs:
     name: GitHub Release
     needs: [build, prepare]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write
     steps:
@@ -248,6 +254,7 @@ jobs:
     name: Publish to crates.io
     needs: [build, prepare]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       id-token: write
       contents: read
@@ -296,6 +303,7 @@ jobs:
     name: Publish APT repository
     needs: [build, publish-github, prepare]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write
     env:
@@ -360,6 +368,7 @@ jobs:
       - publish-apt
       - prepare
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write
       actions: write
@@ -449,6 +458,7 @@ jobs:
       - publish-github
       - prepare
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write
     steps:
@@ -484,6 +494,7 @@ jobs:
     name: WinGet community PR
     needs: [publish-github, prepare]
     runs-on: windows-latest
+    timeout-minutes: 20
     permissions:
       contents: read
     env:
